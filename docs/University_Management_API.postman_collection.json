@@ -1,0 +1,515 @@
+{
+	"info": {
+		"name": "University Management API",
+		"description": "REST API collection for the University Management System.\n\nUsage:\n1. Run \"Register\" or \"Login\" first — the token is saved automatically.\n2. All other requests use the saved token via the {{token}} variable.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token', json.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"email\": \"admin@iitu.edu.kz\",\n    \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('token', json.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"oldPassword\": \"admin123\",\n    \"newPassword\": \"newpass123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/change-password",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "change-password"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Search Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" },
+								{ "key": "username", "value": "", "disabled": true },
+								{ "key": "email", "value": "", "disabled": true },
+								{ "key": "role", "value": "ADMIN", "disabled": true },
+								{ "key": "sortBy", "value": "userName", "disabled": true },
+								{ "key": "sortDirection", "value": "ASC", "disabled": true }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userName\": \"john_doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"STUDENT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					}
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userName\": \"john_doe_updated\",\n    \"email\": \"john_updated@example.com\",\n    \"password\": \"newpassword123\",\n    \"role\": \"STUDENT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "Search Students",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/students?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "students"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" },
+								{ "key": "name", "value": "", "disabled": true },
+								{ "key": "groupName", "value": "", "disabled": true },
+								{ "key": "ageFrom", "value": "18", "disabled": true },
+								{ "key": "ageTo", "value": "25", "disabled": true },
+								{ "key": "gpaFrom", "value": "3.0", "disabled": true },
+								{ "key": "gpaTo", "value": "4.0", "disabled": true },
+								{ "key": "sortBy", "value": "studentName", "disabled": true },
+								{ "key": "sortDirection", "value": "ASC", "disabled": true }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"studentName\": \"Alice Smith\",\n    \"age\": 20,\n    \"gpa\": 3.5,\n    \"groupName\": \"CS-101\",\n    \"userId\": 1,\n    \"courseIds\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/students",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "students"]
+						}
+					}
+				},
+				{
+					"name": "Update Student",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"studentName\": \"Alice Smith Updated\",\n    \"age\": 21,\n    \"gpa\": 3.8,\n    \"groupName\": \"CS-102\",\n    \"userId\": 1,\n    \"courseIds\": [1]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/students/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "students", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Student",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/students/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "students", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Teachers",
+			"item": [
+				{
+					"name": "Search Teachers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/teachers?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "teachers"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" },
+								{ "key": "name", "value": "", "disabled": true },
+								{ "key": "department", "value": "IT", "disabled": true },
+								{ "key": "experienceYearsFrom", "value": "5", "disabled": true },
+								{ "key": "experienceYearsTo", "value": "30", "disabled": true },
+								{ "key": "sortBy", "value": "teacherName", "disabled": true },
+								{ "key": "sortDirection", "value": "ASC", "disabled": true }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Teacher",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"teacherName\": \"Dr. Bob Johnson\",\n    \"experienceYears\": 15,\n    \"department\": \"IT\",\n    \"userId\": 2,\n    \"courseIds\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/teachers",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "teachers"]
+						}
+					}
+				},
+				{
+					"name": "Update Teacher",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"teacherName\": \"Dr. Bob Johnson Updated\",\n    \"experienceYears\": 16,\n    \"department\": \"MATHEMATICS\",\n    \"userId\": 2,\n    \"courseIds\": [1]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/teachers/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "teachers", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Teacher",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/teachers/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "teachers", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Courses",
+			"item": [
+				{
+					"name": "Search Courses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/courses?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "courses"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" },
+								{ "key": "courseName", "value": "", "disabled": true },
+								{ "key": "creditsFrom", "value": "1", "disabled": true },
+								{ "key": "creditsTo", "value": "10", "disabled": true },
+								{ "key": "maxStudentsFrom", "value": "10", "disabled": true },
+								{ "key": "maxStudentsTo", "value": "100", "disabled": true },
+								{ "key": "teacherId", "value": "1", "disabled": true },
+								{ "key": "sortBy", "value": "courseName", "disabled": true },
+								{ "key": "sortDirection", "value": "ASC", "disabled": true }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Course",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"courseName\": \"Introduction to Programming\",\n    \"credits\": 5,\n    \"maxStudents\": 30,\n    \"teacherId\": 1,\n    \"studentIds\": []\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/courses",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "courses"]
+						}
+					}
+				},
+				{
+					"name": "Update Course",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"courseName\": \"Advanced Programming\",\n    \"credits\": 6,\n    \"maxStudents\": 25,\n    \"teacherId\": 1,\n    \"studentIds\": [1, 2]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/courses/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "courses", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Course",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/courses/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "courses", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Profiles",
+			"item": [
+				{
+					"name": "Upload Avatar",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profiles/1/avatar",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "profiles", "1", "avatar"]
+						}
+					}
+				},
+				{
+					"name": "Upload Documents",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/profiles/1/documents",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "profiles", "1", "documents"]
+						}
+					}
+				},
+				{
+					"name": "Download File",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/profiles/files/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "profiles", "files", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete File",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{token}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/profiles/files/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "profiles", "files", "1"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

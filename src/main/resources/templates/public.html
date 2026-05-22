@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>University Management</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: monospace; background: #f5f5f5; min-height: 100vh; display: flex; align-items: stretch; }
+
+        .page { display: flex; width: 100%; min-height: 100vh; }
+
+        /* LEFT: README */
+        .readme { flex: 2; padding: 48px 40px; background: #fff; border-right: 1px solid #ddd; overflow-y: auto; }
+        .readme h1 { font-size: 1.2em; margin-bottom: 24px; }
+        .readme h2 { font-size: 1em; margin: 28px 0 10px; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; }
+        .readme p { font-size: 0.85em; color: #444; line-height: 1.6; margin-bottom: 8px; }
+        .readme table { width: 100%; border-collapse: collapse; font-size: 0.82em; margin-top: 8px; }
+        .readme th { text-align: left; padding: 6px 10px; background: #f0f0f0; border: 1px solid #ddd; }
+        .readme td { padding: 6px 10px; border: 1px solid #ddd; color: #333; }
+        .readme tr:nth-child(even) td { background: #fafafa; }
+        .badge { display: inline-block; font-size: 0.75em; padding: 1px 6px; border-radius: 2px; }
+        .badge-admin  { background: #fde8e8; color: #b00020; }
+        .badge-teacher{ background: #e8f0fe; color: #1a5296; }
+        .badge-student{ background: #e8f5e9; color: #1a7f37; }
+
+        /* RIGHT: Forms */
+        .forms { flex: 1; padding: 48px 32px; background: #fafafa; min-width: 280px; max-width: 360px; }
+        .forms h2 { font-size: 1em; margin-bottom: 16px; }
+        .divider { border: none; border-top: 1px solid #e0e0e0; margin: 28px 0; }
+        label { display: block; font-size: 0.82em; margin-bottom: 3px; color: #555; }
+        input { width: 100%; padding: 7px 8px; margin-bottom: 12px; border: 1px solid #ccc; font-family: monospace; font-size: 0.85em; }
+        input:focus { outline: 1px solid #888; }
+        button { width: 100%; padding: 9px; background: #222; color: #fff; border: none; cursor: pointer; font-family: monospace; font-size: 0.85em; }
+        button:hover { background: #444; }
+        .msg { font-size: 0.82em; margin-top: 10px; }
+        .error   { color: #b00020; }
+        .success { color: #1a7f37; }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- LEFT: README -->
+    <div class="readme">
+        <h1>University Management App</h1>
+        <p>Simple CRUD application for managing students, teachers, and courses.</p>
+
+        <h2>Mock data</h2>
+        <p>The following accounts are pre-loaded on startup. Password for all accounts: <strong>test1234</strong></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>lab_admin</td><td>lab_admin@test.com</td><td><span class="badge badge-admin">ADMIN</span></td></tr>
+                <tr><td>test_admin</td><td>test_admin@test.com</td><td><span class="badge badge-admin">ADMIN</span></td></tr>
+                <tr><td>test_teacher_1</td><td>test_teacher_1@test.com</td><td><span class="badge badge-teacher">TEACHER</span></td></tr>
+                <tr><td>test_teacher_2</td><td>test_teacher_2@test.com</td><td><span class="badge badge-teacher">TEACHER</span></td></tr>
+                <tr><td>test_teacher_3</td><td>test_teacher_3@test.com</td><td><span class="badge badge-teacher">TEACHER</span></td></tr>
+                <tr><td>test_student_1</td><td>test_student_1@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+                <tr><td>test_student_2</td><td>test_student_2@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+                <tr><td>test_student_3</td><td>test_student_3@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+                <tr><td>test_student_4</td><td>test_student_4@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+                <tr><td>test_student_5</td><td>test_student_5@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+                <tr><td>test_student_6</td><td>test_student_6@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+                <tr><td>test_student_7</td><td>test_student_7@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+                <tr><td>test_student_8</td><td>test_student_8@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+                <tr><td>test_student_9</td><td>test_student_9@test.com</td><td><span class="badge badge-student">STUDENT</span></td></tr>
+            </tbody>
+        </table>
+
+        <h2>Access</h2>
+        <p>ADMIN — full access to all pages.</p>
+        <p>TEACHER / STUDENT — access to own profile only.</p>
+    </div>
+
+    <!-- RIGHT: Forms -->
+    <div class="forms">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Username</label>
+            <input id="username" type="text" name="username" required autofocus>
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" required>
+            <button type="submit">Sign in</button>
+        </form>
+        <div id="loginMsg" class="msg"></div>
+
+        <hr class="divider">
+
+        <h2>Register</h2>
+        <form id="registerForm">
+            <label for="reg-username">Username</label>
+            <input id="reg-username" type="text" name="username" required>
+            <label for="reg-email">Email</label>
+            <input id="reg-email" type="email" name="email" required>
+            <label for="reg-password">Password</label>
+            <input id="reg-password" type="password" name="password" required>
+            <label for="reg-confirm">Confirm password</label>
+            <input id="reg-confirm" type="password" name="confirm" required>
+            <button type="submit">Create account</button>
+        </form>
+        <div id="registerMsg" class="msg"></div>
+    </div>
+
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const msgEl = document.getElementById('loginMsg');
+        msgEl.textContent = '';
+        msgEl.className = 'msg';
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (!response.ok) {
+            msgEl.className = 'msg error';
+            msgEl.textContent = 'Invalid username or password.';
+            return;
+        }
+
+        const data = await response.json();
+        localStorage.setItem('jwtToken', data.token);
+        document.cookie = 'jwtToken=' + data.token + '; path=/; SameSite=Lax';
+
+        if (data.role === 'ADMIN') {
+            window.location.href = '/users';
+        } else if (data.role === 'STUDENT' || data.role === 'TEACHER') {
+            window.location.href = '/profiles/' + data.userId;
+        } else {
+            msgEl.className = 'msg success';
+            msgEl.textContent = 'Signed in as GUEST. No additional pages available.';
+        }
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const msgEl = document.getElementById('registerMsg');
+        msgEl.textContent = '';
+        msgEl.className = 'msg';
+
+        const username = document.getElementById('reg-username').value;
+        const email    = document.getElementById('reg-email').value;
+        const password = document.getElementById('reg-password').value;
+        const confirm  = document.getElementById('reg-confirm').value;
+
+        if (password !== confirm) {
+            msgEl.className = 'msg error';
+            msgEl.textContent = 'Passwords do not match.';
+            return;
+        }
+
+        const response = await fetch('/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        });
+
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            msgEl.className = 'msg error';
+            msgEl.textContent = err.message || 'Registration failed.';
+            return;
+        }
+
+        msgEl.className = 'msg success';
+        msgEl.textContent = 'Account created! You can now sign in.';
+        document.getElementById('registerForm').reset();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Teachers</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        h1 { margin-bottom: 16px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f5f5f5; }
+        form.inline { display: inline; }
+        .form-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 12px; }
+        .form-row label { display: inline-block; min-width: 70px; }
+        .form-row input, .form-row select { min-width: 160px; }
+        .form-actions { margin-top: 8px; }
+        .form-actions a { margin-left: 8px; font-size: 0.9em; }
+
+    </style>
+</head>
+<body>
+
+<button id="logoutButton" onclick="localStorage.removeItem('jwtToken'); document.cookie='jwtToken=; path=/; max-age=0'; window.location.href='/public';" style="position:fixed;top:16px;right:16px;padding:6px 18px;background:#e53935;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:0.95em;z-index:1000;">Log Out</button>
+
+<h1>Teachers</h1>
+
+<form method="get" th:object="${searchForm}">
+    <label for="name">Name</label>
+    <input id="name" type="text" th:field="*{name}" placeholder="Name">
+    <label for="department">Department</label>
+    <select id="department" th:field="*{department}">
+        <option value="">All</option>
+        <option th:each="d : ${T(kz.iitu.hello.domain.enums.Department).values()}"
+                th:value="${d}"
+                th:text="${d}">
+        </option>
+    </select>
+    <label for="experienceYearsFrom">Experience from</label>
+    <input id="experienceYearsFrom" type="number" th:field="*{experienceYearsFrom}" placeholder="Experience from">
+    <label for="experienceYearsTo">Experience to</label>
+    <input id="experienceYearsTo" type="number" th:field="*{experienceYearsTo}" placeholder="Experience to">
+    <label for="sortBy">Sort by</label>
+    <select id="sortBy" th:field="*{sortBy}">
+        <option value="id">ID</option>
+        <option value="teacherName">Name</option>
+        <option value="experienceYears">Experience</option>
+        <option value="department">Department</option>
+    </select>
+    <label for="sortDirection">Sort direction</label>
+    <select id="sortDirection" th:field="*{sortDirection}">
+        <option value="ASC">ASC</option>
+        <option value="DESC">DESC</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<h2 th:text="${editMode} ? 'Edit Teacher' : 'Create Teacher'">Create Teacher</h2>
+
+<form th:object="${form}" th:action="${editMode} ? @{/teachers/{id}(id=${form.id})} : @{/teachers}" method="post">
+    <input type="hidden" name="_method" value="PUT" th:if="${editMode}"/>
+
+    <div>
+        <label>Name</label>
+        <input type="text" th:field="*{teacherName}"/>
+        <span th:if="${#fields.hasErrors('teacherName')}" th:errors="*{teacherName}"></span>
+    </div>
+
+    <div>
+        <label>Experience years</label>
+        <input type="number" th:field="*{experienceYears}"/>
+        <span th:if="${#fields.hasErrors('experienceYears')}" th:errors="*{experienceYears}"></span>
+    </div>
+
+    <div>
+        <label>Department</label>
+        <select th:field="*{department}">
+            <option value="">Select department</option>
+            <option th:each="d : ${departments}" th:value="${d}" th:text="${d}"></option>
+        </select>
+        <span th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></span>
+    </div>
+
+    <div>
+        <label>User</label>
+        <select th:field="*{userId}">
+            <option value="">Select user</option>
+            <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.userName}"></option>
+        </select>
+        <span th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></span>
+    </div>
+
+    <div>
+        <label>Courses</label>
+        <select th:field="*{courseIds}" multiple size="5">
+            <option th:each="c : ${courses}" th:value="${c.id}" th:text="${c.courseName}"></option>
+        </select>
+    </div>
+
+    <div>
+        <button type="submit" th:text="${editMode} ? 'Update' : 'Create'">Create</button>
+        <a th:if="${editMode}" th:href="@{/teachers}">Cancel</a>
+    </div>
+</form>
+<div th:if="${param.error == 'access_denied'}" style="color:#b00020; margin-top:8px;">
+    Access denied. You are not authorized to perform this action.
+</div>
+
+<h2>Teachers</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Department</th>
+        <th>Experience Years</th>
+        <th>User</th>
+        <th>Courses Count</th>
+        <th>Courses</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${#lists.isEmpty(page.content)}">
+        <td colspan="8">No teachers yet.</td>
+    </tr>
+    <tr th:each="teacher : ${page.content}">
+        <td><a th:href="@{/teachers(id=${teacher.id})}" th:text="${teacher.id}">1</a></td>
+        <td th:text="${teacher.teacherName}">Teacher Name</td>
+        <td th:text="${teacher.department}">IT</td>
+        <td th:text="${teacher.experienceYears}">0</td>
+        <td th:text="${teacher.user != null ? teacher.user.userName : '-'}">username</td>
+        <td th:text="${#lists.size(teacher.courses)}">0</td>
+        <td>
+            <span th:if="${#lists.isEmpty(teacher.courses)}">—</span>
+            <ul th:if="${!#lists.isEmpty(teacher.courses)}">
+                <li th:each="c : ${teacher.courses}" th:text="${c.courseName}"></li>
+            </ul>
+        </td>
+        <td>
+            <form th:action="@{/teachers/{id}(id=${teacher.id})}" method="post">
+                <input type="hidden" name="_method" value="DELETE"/>
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a th:if="${page.hasPrevious()}" th:href="@{/teachers(page=${page.number-1})}">Previous</a>
+<span th:text="${page.number + 1}"></span>
+<a th:if="${page.hasNext()}" th:href="@{/teachers(page=${page.number+1})}">Next</a>
+
+</body>
+</html>

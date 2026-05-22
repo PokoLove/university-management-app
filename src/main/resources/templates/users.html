@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        h1 { margin-bottom: 16px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f5f5f5; }
+        form.inline { display: inline; }
+        .form-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 12px; }
+        .form-row label { display: inline-block; min-width: 70px; }
+        .form-row input, .form-row select { min-width: 160px; }
+        .form-actions { margin-top: 8px; }
+        .form-actions a { margin-left: 8px; font-size: 0.9em; }
+        .error-message { color: #b00020; margin-top: 8px; }
+    </style>
+</head>
+<body>
+<button id="logoutButton" onclick="localStorage.removeItem('jwtToken'); document.cookie='jwtToken=; path=/; max-age=0'; window.location.href='/public';" style="position:fixed;top:16px;right:16px;padding:6px 18px;background:#e53935;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:0.95em;z-index:1000;">Log Out</button>
+
+<h1>Users</h1>
+
+<form method="get" th:object="${searchForm}">
+    <label for="username">Username</label>
+    <input id="username" type="text" th:field="*{username}" placeholder="Username">
+    <label for="email">Email</label>
+    <input id="email" type="text" th:field="*{email}" placeholder="Email">
+    <label for="searchRole">Role</label>
+    <select id="searchRole" th:field="*{role}">
+        <option value="">All roles</option>
+        <option th:each="role : ${T(kz.iitu.hello.domain.enums.UserRole).values()}"
+                th:value="${role}"
+                th:text="${role}"
+                th:selected="${searchForm.role == role}">
+        </option>
+    </select>
+    <label for="sortBy">Sort by</label>
+    <select id="sortBy" th:field="*{sortBy}">
+        <option value="id">ID</option>
+        <option value="userName">Username</option>
+        <option value="email">Email</option>
+        <option value="createdAt">Created At</option>
+    </select>
+    <label for="sortDirection">Sort direction</label>
+    <select id="sortDirection" th:field="*{sortDirection}">
+        <option value="ASC">ASC</option>
+        <option value="DESC">DESC</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<h2 th:text="${editMode} ? 'Edit User' : 'Create User'">Create User</h2>
+<form th:object="${form}" th:action="${editMode} ? @{/users/{id}(id=${form.id})} : @{/users}" method="post">
+    <input type="hidden" name="_method" value="PUT" th:if="${editMode}"/>
+
+    <div>
+        <label for="userName">User Name</label>
+        <input id="userName" type="text" th:field="*{userName}"/>
+        <span th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}"></span>
+    </div>
+
+    <div>
+        <label for="email">Email</label>
+        <input id="email" type="email" th:field="*{email}"/>
+        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+    </div>
+
+    <div>
+        <label for="password">Password</label>
+        <input id="password" type="password" th:field="*{password}"/>
+        <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+    </div>
+
+    <div>
+        <label for="role">Role</label>
+        <select id="role" th:field="*{role}">
+            <option value="">Select role</option>
+            <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
+        </select>
+        <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></span>
+    </div>
+
+    <div>
+        <button type="submit" th:text="${editMode} ? 'Update' : 'Create'">Create</button>
+        <a th:if="${editMode}" th:href="@{/users}">Cancel</a>
+    </div>
+</form>
+<div class="error-message" th:if="${param.error == 'access_denied'}">
+    Access denied. You are not authorized to perform this action.
+</div>
+
+<h2>Users</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>User Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${#lists.isEmpty(page.content)}">
+        <td colspan="5">No users yet.</td>
+    </tr>
+    <tr th:each="user : ${page.content}">
+        <td><a th:href="@{/users(id=${user.id})}" th:text="${user.id}">1</a></td>
+        <td th:text="${user.userName}">User Name</td>
+        <td th:text="${user.email}">email@example.com</td>
+        <td th:text="${user.role}">ADMIN</td>
+        <td>
+            <form th:action="@{/users/{id}(id=${user.id})}" method="post">
+                <input type="hidden" name="_method" value="DELETE"/>
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a th:if="${page.hasPrevious()}" th:href="@{/users(page=${page.number-1},username=${searchForm.username},email=${searchForm.email},role=${searchForm.role},sortBy=${searchForm.sortBy},sortDirection=${searchForm.sortDirection})}">Previous</a>
+<span th:text="${page.number + 1}"></span>
+<a th:if="${page.hasNext()}" th:href="@{/users(page=${page.number+1},username=${searchForm.username},email=${searchForm.email},role=${searchForm.role},sortBy=${searchForm.sortBy},sortDirection=${searchForm.sortDirection})}">Next</a>
+
+</body>
+</html>

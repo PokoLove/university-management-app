@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: university_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       lab2_db
+      POSTGRES_USER:     lab2
+      POSTGRES_PASSWORD: lab2
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lab2 -d lab2_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ── Spring Boot application ─────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: university_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL:      jdbc:postgresql://db:5432/lab2_db
+      SPRING_DATASOURCE_USERNAME: lab2
+      SPRING_DATASOURCE_PASSWORD: lab2
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET:                 my-super-secret-key-for-university-lab-demo-2026
+      JWT_EXPIRATION_MS:          86400000
+      # Show container logs at INFO level
+      LOGGING_LEVEL_KZ_IITU:      INFO
+      LOGGING_LEVEL_ROOT:         WARN
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_data:/app/uploads
+      - app_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL",
+             "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+volumes:
+  postgres_data:
+  uploads_data:
+  app_logs:

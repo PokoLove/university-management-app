@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .section { margin-bottom: 24px; }
+        .avatar-preview { width: 160px; height: 160px; object-fit: cover; border: 1px solid #ccc; border-radius: 8px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        .inline { display: inline; }
+    </style>
+</head>
+<body>
+<button id="logoutButton" onclick="localStorage.removeItem('jwtToken'); document.cookie='jwtToken=; path=/; max-age=0'; window.location.href='/public';" style="position:fixed;top:16px;right:16px;padding:6px 18px;background:#e53935;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:0.95em;z-index:1000;">Log Out</button>
+
+<h1>User Profile</h1>
+
+<div class="section">
+    <h2>Base Information</h2>
+    <p><strong>ID:</strong> <span th:text="${user.id}"></span></p>
+    <p><strong>Username:</strong> <span th:text="${user.userName}"></span></p>
+    <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+    <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
+</div>
+
+<div class="section" th:if="${user.role.name() == 'STUDENT' and student != null}">
+    <h2>Student Information</h2>
+    <p><strong>Name:</strong> <span th:text="${student.studentName}"></span></p>
+    <p><strong>Age:</strong> <span th:text="${student.age}"></span></p>
+    <p><strong>Group:</strong> <span th:text="${student.groupName}"></span></p>
+    <p><strong>GPA:</strong> <span th:text="${student.gpa}"></span></p>
+</div>
+
+<div class="section" th:if="${user.role.name() == 'TEACHER' and teacher != null}">
+    <h2>Teacher Information</h2>
+    <p><strong>Name:</strong> <span th:text="${teacher.teacherName}"></span></p>
+    <p><strong>Experience years:</strong> <span th:text="${teacher.experienceYears}"></span></p>
+    <p><strong>Department:</strong> <span th:text="${teacher.department}"></span></p>
+</div>
+
+<div class="section">
+    <h2>Avatar</h2>
+    <div th:if="${avatar != null}">
+        <img class="avatar-preview" th:src="@{/api/profiles/files/{fileId}(fileId=${avatar.id})}" alt="Avatar preview">
+        <div>
+            <a th:href="@{/api/profiles/files/{fileId}(fileId=${avatar.id})}">Download avatar</a>
+            <form class="inline" method="post" th:action="@{/profiles/files/{fileId}/delete(fileId=${avatar.id})}">
+                <button type="submit">Delete avatar</button>
+            </form>
+        </div>
+    </div>
+    <p th:if="${avatar == null}">Avatar is not uploaded yet.</p>
+
+    <form method="post" enctype="multipart/form-data" th:action="@{/profiles/{userId}/avatar(userId=${user.id})}">
+        <input type="file" name="file" accept=".jpg,.jpeg,.png" required>
+        <button type="submit">Upload avatar</button>
+    </form>
+</div>
+
+<div class="section">
+    <h2>Documents</h2>
+    <form method="post" enctype="multipart/form-data" th:action="@{/profiles/{userId}/documents(userId=${user.id})}">
+        <input type="file" name="files" accept=".pdf" multiple required>
+        <button type="submit">Upload documents</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>File name</th>
+            <th>Content type</th>
+            <th>Uploaded at</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(documents)}">
+            <td colspan="5">No documents uploaded.</td>
+        </tr>
+        <tr th:each="document : ${documents}">
+            <td th:text="${document.id}"></td>
+            <td th:text="${document.fileName}"></td>
+            <td th:text="${document.contentType}"></td>
+            <td th:text="${document.uploadedAt}"></td>
+            <td>
+                <a th:href="@{/api/profiles/files/{fileId}(fileId=${document.id})}">Download</a>
+                <form class="inline" method="post" th:action="@{/profiles/files/{fileId}/delete(fileId=${document.id})}">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Students</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        h1 { margin-bottom: 16px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f5f5f5; }
+        form.inline { display: inline; }
+        .form-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 12px; }
+        .form-row label { display: inline-block; min-width: 70px; }
+        .form-row input, .form-row select { min-width: 160px; }
+        .form-actions { margin-top: 8px; }
+        .form-actions a { margin-left: 8px; font-size: 0.9em; }
+
+    </style>
+</head>
+<body>
+
+<button id="logoutButton" onclick="localStorage.removeItem('jwtToken'); document.cookie='jwtToken=; path=/; max-age=0'; window.location.href='/public';" style="position:fixed;top:16px;right:16px;padding:6px 18px;background:#e53935;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:0.95em;z-index:1000;">Log Out</button>
+
+<h1>Students</h1>
+
+<form method="get" th:object="${searchForm}">
+    <label for="name">Name</label>
+    <input id="name" type="text" th:field="*{name}" placeholder="Name">
+    <label for="groupName">Group name</label>
+    <input id="groupName" type="text" th:field="*{groupName}" placeholder="Group name">
+    <label for="ageFrom">Age from</label>
+    <input id="ageFrom" type="number" th:field="*{ageFrom}" placeholder="Age from">
+    <label for="ageTo">Age to</label>
+    <input id="ageTo" type="number" th:field="*{ageTo}" placeholder="Age to">
+    <label for="gpaFrom">GPA from</label>
+    <input id="gpaFrom" type="number" step="0.01" th:field="*{gpaFrom}" placeholder="GPA from">
+    <label for="gpaTo">GPA to</label>
+    <input id="gpaTo" type="number" step="0.01" th:field="*{gpaTo}" placeholder="GPA to">
+    <label for="sortBy">Sort by</label>
+    <select id="sortBy" th:field="*{sortBy}">
+        <option value="id">ID</option>
+        <option value="studentName">Name</option>
+        <option value="age">Age</option>
+        <option value="groupName">Group</option>
+        <option value="gpa">GPA</option>
+    </select>
+    <label for="sortDirection">Sort direction</label>
+    <select id="sortDirection" th:field="*{sortDirection}">
+        <option value="ASC">ASC</option>
+        <option value="DESC">DESC</option>
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<h2 th:text="${editMode} ? 'Edit Student' : 'Create Student'">Create Student</h2>
+
+<form th:object="${form}" th:action="${editMode} ? @{/students/{id}(id=${form.id})} : @{/students}" method="post">
+    <input type="hidden" name="_method" value="PUT" th:if="${editMode}"/>
+
+    <div>
+        <label>Student name</label>
+        <input type="text" th:field="*{studentName}"/>
+        <span th:if="${#fields.hasErrors('studentName')}" th:errors="*{studentName}"></span>
+    </div>
+
+    <div>
+        <label>Age</label>
+        <input type="number" th:field="*{age}"/>
+        <span th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></span>
+    </div>
+
+    <div>
+        <label>GPA</label>
+        <input type="number" step="0.01" th:field="*{gpa}"/>
+        <span th:if="${#fields.hasErrors('gpa')}" th:errors="*{gpa}"></span>
+    </div>
+
+    <div>
+        <label>Group name</label>
+        <input type="text" th:field="*{groupName}"/>
+        <span th:if="${#fields.hasErrors('groupName')}" th:errors="*{groupName}"></span>
+    </div>
+
+    <div>
+        <label>User</label>
+        <select th:field="*{userId}">
+            <option value="">Select user</option>
+            <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.userName}"></option>
+        </select>
+        <span th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></span>
+    </div>
+
+    <div>
+        <label>Courses</label>
+        <select th:field="*{courseIds}" multiple size="5">
+            <option th:each="c : ${courses}" th:value="${c.id}" th:text="${c.courseName}"></option>
+        </select>
+    </div>
+
+    <div>
+        <button type="submit" th:text="${editMode} ? 'Update' : 'Create'">Create</button>
+        <a th:if="${editMode}" th:href="@{/students}">Cancel</a>
+    </div>
+</form>
+<div th:if="${param.error == 'access_denied'}" style="color:#b00020; margin-top:8px;">
+    Access denied. You are not authorized to perform this action.
+</div>
+
+<h2>Students</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Student name</th>
+        <th>Age</th>
+        <th>Group</th>
+        <th>GPA</th>
+        <th>User</th>
+        <th>Courses Count</th>
+        <th>Courses</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    <tr th:if="${#lists.isEmpty(page.content)}">
+        <td colspan="9">No students yet.</td>
+    </tr>
+
+    <tr th:each="student : ${page.content}">
+        <td><a th:href="@{/students(id=${student.id})}" th:text="${student.id}">1</a></td>
+        <td th:text="${student.studentName}">Student</td>
+        <td th:text="${student.age}">0</td>
+        <td th:text="${student.groupName}">Group</td>
+        <td th:text="${student.gpa}">0.0</td>
+        <td th:text="${student.user != null ? student.user.userName : '-'}">User</td>
+        <td th:text="${#lists.size(student.courses)}">0</td>
+        <td>
+            <span th:if="${#lists.isEmpty(student.courses)}">—</span>
+            <ul th:if="${!#lists.isEmpty(student.courses)}">
+                <li th:each="c : ${student.courses}" th:text="${c.courseName}"></li>
+            </ul>
+        </td>
+        <td>
+            <form th:action="@{/students/{id}(id=${student.id})}" method="post">
+                <input type="hidden" name="_method" value="DELETE"/>
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+
+    </tbody>
+</table>
+
+<a th:if="${page.hasPrevious()}" th:href="@{/students(page=${page.number-1})}">Previous</a>
+<span th:text="${page.number + 1}"></span>
+<a th:if="${page.hasNext()}" th:href="@{/students(page=${page.number+1})}">Next</a>
+
+</body>
+</html>
