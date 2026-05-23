@@ -6,10 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Async process #1 — simulates sending notifications (email/push).
- * Uses @Async so the caller does not block waiting for delivery.
- */
+
 @Slf4j
 @Service
 public class NotificationService {
