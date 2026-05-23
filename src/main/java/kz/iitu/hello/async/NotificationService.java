@@ -14,6 +14,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class NotificationService {
 
+    /**
+     * Notifies a student that they have been enrolled in a course.
+     * Runs on the "notificationExecutor" thread pool.
+     */
     @Async("notificationExecutor")
     public CompletableFuture<Void> notifyStudentEnrolled(String studentName, String courseName) {
         log.info("[ASYNC] Sending enrollment notification to student='{}' for course='{}'",
