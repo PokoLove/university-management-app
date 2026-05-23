@@ -34,7 +34,9 @@ public class NotificationService {
         return CompletableFuture.completedFuture(null);
     }
 
-
+    /**
+     * Notifies a student that they have been removed from a course.
+     */
     @Async("notificationExecutor")
     public CompletableFuture<Void> notifyStudentRemoved(String studentName, String courseName) {
         log.info("[ASYNC] Sending removal notification to student='{}' for course='{}'",
