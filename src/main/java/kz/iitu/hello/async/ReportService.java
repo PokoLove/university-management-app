@@ -51,9 +51,7 @@ public class ReportService {
         return CompletableFuture.completedFuture(count);
     }
 
-    /**
-     * Counts total courses asynchronously.
-     */
+
     @Async("reportExecutor")
     @Transactional(readOnly = true)
     public CompletableFuture<Long> countCoursesAsync() {
