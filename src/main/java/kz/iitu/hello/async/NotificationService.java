@@ -52,9 +52,6 @@ public class NotificationService {
         return CompletableFuture.completedFuture(null);
     }
 
-    /**
-     * Sends a welcome notification when a new user registers.
-     */
     @Async("notificationExecutor")
     public CompletableFuture<Void> notifyNewUserRegistered(String username, String email) {
         log.info("[ASYNC] Sending welcome notification to username='{}', email='{}'",
